@@ -4,6 +4,8 @@ using Color = System.Windows.Media.Color;
 using PropertyItem = HandyControl.Controls.PropertyItem;
 using TextBox = System.Windows.Controls.TextBox;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace Reloaded.Mod.Launcher.Controls;
 
@@ -25,6 +27,10 @@ public class PropertyGridEx : PropertyGrid
     {
         ((PropertyResolverEx)PropertyResolver).Descriptor = propertyDescriptor;
         var item = base.CreatePropertyItem(propertyDescriptor, component, category, hierarchyLevel);
+
+        // Uses 'DisplayAttribute.Order' for item ordering.
+        item.Priority = int.MaxValue - propertyDescriptor.Attributes.OfType<DisplayAttribute>().FirstOrDefault()?.Order ?? item.Priority;
+
         _properties.Add(item);
         _propertyDescriptors.Add(propertyDescriptor);
         return item;
@@ -56,7 +62,7 @@ public class PropertyGridEx : PropertyGrid
         {
             var property = _properties[x];
             if (property.DefaultValue != null)
-                _propertyDescriptors[x].SetValue(property.Value, property.DefaultValue);
+                _propertyDescriptors[x].SetValue(property.Value, Convert.ChangeType(property.DefaultValue, property.PropertyType));
         }
     }
 }
@@ -340,11 +346,30 @@ public class EnumPropertyEditor : PropertyEditorBase
         return new System.Windows.Controls.ComboBox
         {
             IsEnabled = !propertyItem.IsReadOnly,
-            ItemsSource = Enum.GetValues(propertyItem.PropertyType)
+            ItemsSource = GetItems(propertyItem.PropertyType),
+            DisplayMemberPath = "Name",
+            SelectedValuePath = "Value",
         };
     }
 
+    private static ItemTuple[] GetItems(Type type)
+    {
+        var values = Enum.GetValues(type);
+        var items = GC.AllocateUninitializedArray<ItemTuple>(values.Length);
+        for (int x = 0; x < values.Length; x++)
+        {
+            var value = values.GetValue(x)!;
+            var name = value.ToString()!;
+            name = type.GetMember(name).First().GetCustomAttribute<DisplayAttribute>()?.Name ?? name;
+            items[x] = new(name, value);
+        }
+
+        return items;
+    }
+
     public override DependencyProperty GetDependencyProperty() => Selector.SelectedValueProperty;
+
+    private record struct ItemTuple(string Name, object Value);
 }
 
 public class NumberPropertyEditor : PropertyEditorBase

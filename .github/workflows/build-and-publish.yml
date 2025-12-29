@@ -14,6 +14,7 @@ env:
   TOOLS_PATH: ./source/Publish/Tools.zip
   PUBLISH_CHOCO_PATH: ./source/Publish/Chocolatey
   PUBLISH_INSTALLER_PATH: ./source/Publish/Installer/Setup.exe 
+  PUBLISH_INSTALLER_STATIC_PATH: ./source/Publish/Installer-Static/Setup-Linux.exe 
   PUBLISH_CHANGELOG_PATH: ./source/Publish/Changelog.md 
   PUBLISH_PACKAGES_PATH: ./source/Publish/Packages
   PUBLISH_RELEASE_FOLDER: ./source/Publish/Release
@@ -30,7 +31,7 @@ jobs:
         shell: pwsh
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         submodules: 'recursive'
@@ -44,9 +45,9 @@ jobs:
     
     # Required for C#10 features.
     - name: Setup Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v6
       with:
-        node-version: '14'
+        node-version: '20'
     
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -58,26 +59,28 @@ jobs:
       run: npm install -g auto-changelog
    
     - name: Setup Dotnet SDK (5.0)
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '5.0.x'
-        include-prerelease: true
 
     - name: Setup Dotnet SDK (7.0)
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '7.0.x'
-        include-prerelease: true
 
     - name: Setup Dotnet SDK (8.0)
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '8.0.x'
-        include-prerelease: true
+
+    - name: Setup Dotnet SDK (9.0)
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '9.0.x'
     
     - name: Get Dotnet Info
       run: dotnet --info
-      
+
     - name: Publish
       run: |
         if ($env:IS_RELEASE -eq 'true') 
@@ -94,9 +97,6 @@ jobs:
       run: |
         echo "$env:RELEASE_TAG" > "version.txt"
         Compress-Archive -update "version.txt" "$env:PUBLISH_RELEASE_PATH" 
-      
-    - name: Test
-      run: dotnet test -c Release ./source/Reloaded.Mod.Loader.Tests/Reloaded.Mod.Loader.Tests.csproj
      
     - name: Create NuGet Package Artifacts
       run: |
@@ -121,7 +121,7 @@ jobs:
         }
         
     - name: Upload Chocolatey Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v5
       with:
         # Artifact name
         name: Chocolatey Package
@@ -130,7 +130,7 @@ jobs:
         retention-days: 0
         
     - name: Upload Reloaded Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v5
       with:
         # Artifact name
         name: Loader Build
@@ -139,16 +139,18 @@ jobs:
         retention-days: 0
         
     - name: Upload Installer Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v5
       with:
         # Artifact name
         name: Installer
         # A file, directory or wildcard pattern that describes what to upload
-        path: ${{ env.PUBLISH_INSTALLER_PATH }}
+        path: |
+          ${{ env.PUBLISH_INSTALLER_PATH }}
+          ${{ env.PUBLISH_INSTALLER_STATIC_PATH }}
         retention-days: 0
          
     - name: Upload NuGet Artifacts
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v5
       with:
         # Artifact name
         name: NuGet Packages
@@ -157,7 +159,7 @@ jobs:
         retention-days: 0
         
     - name: Upload Changelog Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v5
       with:
         # Artifact name
         name: Changelog
@@ -166,16 +168,19 @@ jobs:
         retention-days: 0
     
     - name: Upload Tools Artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v5
       with:
         # Artifact name
         name: Tools
         # A file, directory or wildcard pattern that describes what to upload
         path: ${{ env.TOOLS_PATH }}
         retention-days: 0
-    
+
+    - name: Test
+      run: dotnet test -c Release ./source/Reloaded.Mod.Loader.Tests/Reloaded.Mod.Loader.Tests.csproj
+
     - name: Upload to GitHub Releases
-      uses: softprops/action-gh-release@v0.1.14
+      uses: softprops/action-gh-release@v2
       if: env.IS_RELEASE == 'true'
       with:
         # Path to load note-worthy description of changes in release from
@@ -185,6 +190,7 @@ jobs:
           ${{ env.PUBLISH_RELEASE_FOLDER }}/*
           ${{ env.TOOLS_PATH }}
           ${{ env.PUBLISH_INSTALLER_PATH }}
+          ${{ env.PUBLISH_INSTALLER_STATIC_PATH }}
         
     - name: Upload to NuGet (on Tag)
       env: 

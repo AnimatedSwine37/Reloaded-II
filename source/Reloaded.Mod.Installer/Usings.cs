@@ -1,7 +1,6 @@
 global using HandyControl.Controls;
 global using Reloaded.Mod.Installer.DependencyInstaller;
 global using Reloaded.Mod.Installer.DependencyInstaller.IO;
-global using Reloaded.Mod.Installer.Utilities;
 global using System;
 global using System.ComponentModel;
 global using System.Diagnostics;

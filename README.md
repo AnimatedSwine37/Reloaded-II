@@ -22,6 +22,8 @@ Made from the ground up **proudly** using the C# programming language.
 
 For more information, please visit [the Reloaded-II website.](https://reloaded-project.github.io/Reloaded-II/)
 
+For installation instructions, see [Quick Start Guide.](https://reloaded-project.github.io/Reloaded-II/QuickStart)
+
 ## Contributions
 
 Contributions to this project are **highly encouraged**.

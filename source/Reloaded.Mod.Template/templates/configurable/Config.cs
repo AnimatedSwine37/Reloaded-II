@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Reloaded.Mod.Template.Template.Configuration;
 using Reloaded.Mod.Interfaces.Structs;
+using System.ComponentModel.DataAnnotations;
 
 namespace Reloaded.Mod.Template.Configuration;
 
@@ -54,12 +55,18 @@ public class Config : Configurable<Config>
 
     public enum SampleEnum
     {
+        [Display(Name = "No Opinion 🤷")]
         NoOpinion,
+        [Display(Name = "It's Sucks! 👎")]
         Sucks,
+        [Display(Name = "It's mediocre 😐")]
         IsMediocre,
+        [Display(Name = "It's okay! 👍")]
         IsOk,
+        [Display(Name = "It's cool! 😎")]
         IsCool,
-        ILoveIt
+        [Display(Name = "I Love It!!! ❤️🔥")]
+        ILoveIt,
     }
     
     [DisplayName("Int Slider")]
@@ -102,6 +109,15 @@ public class Config : Configurable<Config>
         multiSelect: true,
         forceFileSystem: true)]
     public string Folder { get; set; } = "";
+
+    [Display(Order = 0)]
+    public int OrderFirst { get; set; }
+
+    [Display(Order = 1)]
+    public int OrderSecond { get; set; }
+
+    [Display(Order = 2)]
+    public int OrderThird { get; set; }
 }
 
 /// <summary>

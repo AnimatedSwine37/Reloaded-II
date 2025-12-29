@@ -1,4 +1,5 @@
 using NuGet.Protocol;
+using Polly;
 using IOEx = Reloaded.Mod.Loader.IO.Utility.IOEx;
 
 namespace Reloaded.Mod.Loader.Update.Providers.Web;
@@ -96,30 +97,39 @@ public class WebDownloadablePackage : IDownloadablePackage, IDownloadablePackage
     public async Task<string> DownloadAsync(string packageFolder, IProgress<double>? progress, CancellationToken token = default)
     {
         using var tempDownloadDirectory = new TemporaryFolderAllocation();
-        using var tempExtractDirectory  = new TemporaryFolderAllocation();
-        var tempFilePath                = Path.Combine(tempDownloadDirectory.FolderPath, Path.GetRandomFileName());
-        var progressSlicer              = new ProgressSlicer(progress);
+        using var tempExtractDirectory = new TemporaryFolderAllocation();
+        var tempFilePath = Path.Combine(tempDownloadDirectory.FolderPath, Path.GetRandomFileName());
+        var progressSlicer = new ProgressSlicer(progress);
+
+        var retryPolicy = Policy
+            .Handle<HttpRequestException>()
+            .Or<IOException>()
+            .WaitAndRetryAsync(
+                retryCount: 4,
+                sleepDurationProvider: attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt))
+            );
 
         // Start the modification download.
         using var httpClient = new HttpClient();
         var downloadProgress = progressSlicer.Slice(0.9);
 
-
-        await using (var fileStream = new FileStream(tempFilePath, FileMode.OpenOrCreate))
+        await retryPolicy.ExecuteAsync(async () =>
         {
+            await using var fileStream = new FileStream(tempFilePath, FileMode.OpenOrCreate);
             var archiveStream = await httpClient.GetStreamAsync(_url, token).ConfigureAwait(false);
             await archiveStream.CopyToAsyncEx(fileStream, 262144, downloadProgress, FileSize.GetValueOrDefault(1), token);
-            if (token.IsCancellationRequested)
-                return string.Empty;
-        }
+        });
 
+        if (token.IsCancellationRequested)
+            return string.Empty;
+        
         /* Extract to Temp Directory */
         var archiveExtractor = new SevenZipSharpExtractor();
-        var extractProgress  = progressSlicer.Slice(0.1);
+        var extractProgress = progressSlicer.Slice(0.1);
         await archiveExtractor.ExtractPackageAsync(tempFilePath, tempExtractDirectory.FolderPath, extractProgress, token);
 
         /* Get name of package. */
-        return CopyPackagesFromExtractFolderToTargetDir(packageFolder, tempExtractDirectory.FolderPath, token);
+        return await CopyPackagesFromExtractFolderToTargetDir(packageFolder, tempExtractDirectory.FolderPath, token);
     }
 
     /// <inheritdoc />
@@ -129,7 +139,7 @@ public class WebDownloadablePackage : IDownloadablePackage, IDownloadablePackage
     /// Finds all mods in <paramref name="tempExtractDir"/> and copies them to appropriate subfolders in <paramref name="packageFolder"/>.
     /// </summary>
     /// <returns>Path to last folder copied.</returns>
-    public static string CopyPackagesFromExtractFolderToTargetDir(string packageFolder, string tempExtractDir, CancellationToken token)
+    public async static Task<string> CopyPackagesFromExtractFolderToTargetDir(string packageFolder, string tempExtractDir, CancellationToken token)
     {
         var configs = ConfigReader<ModConfig>.ReadConfigurations(tempExtractDir, ModConfig.ConfigFileName, token, int.MaxValue, 0);
         var returnResult = "";

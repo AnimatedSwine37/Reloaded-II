@@ -181,7 +181,7 @@ public static class Resources
     // Update 1.21.0: Mod Packs Install
     public static IDictionaryResource<string> InstallModPackDownloading { get; set; }
     public static IDictionaryResource<string> InstallModPackErrorDownloadFail { get; set; }
-    
+
     // Update 1.21.6: Mod Packs Install
     public static IDictionaryResource<string> ErrorAddApplicationGeneral { get; set; }
     public static IDictionaryResource<string> ErrorAddApplicationCantReadSymlink { get; set; }
@@ -204,4 +204,25 @@ public static class Resources
     // Update 1.26.0: Drag & Drop Mods
     public static IDictionaryResource<string> DragDropInstalledModsTitle { get; set; }
     public static IDictionaryResource<string> DragDropInstalledModsDescription { get; set; }
+
+    // Update 1.28.4: Delete Mod Dialog
+    public static IDictionaryResource<string> DeleteModDialogTitle { get; set; }
+    public static IDictionaryResource<string> DeleteModDialogDescription { get; set; }
+
+    // Update 1.28.6: Problematic Path Warnings
+    public static IDictionaryResource<string> ProblematicPathTitle { get; set; }
+    public static IDictionaryResource<string> ProblematicPathAppDescription { get; set; }
+    public static IDictionaryResource<string> ProblematicPathReloadedDescription { get; set; }
+    public static IDictionaryResource<string> ProblematicPathModsDescription { get; set; }
+    
+    // Update 1.29.0: Launcher Error Reporting
+    public static IDictionaryResource<string> ErrorViewDetails { get; set; }
+    public static IDictionaryResource<string> ErrorStacktraceTitle { get; set; }
+    public static IDictionaryResource<string> ErrorStacktraceSubtitle { get; set; }
+
+    // Update 1.X.X: New Progress Window for Local Mod Installation (UPDATE LAUNCHER VER BEFORE RELEASE)
+    public static IDictionaryResource<string> InstallModArchiveTitle { get; set; }
+    public static IDictionaryResource<string> InstalledModName { get; set; }
+    public static IDictionaryResource<string> InstallingModWait { get; set; }
+    public static IDictionaryResource<string> ExtractingLocalModArchive { get; set; }
 }

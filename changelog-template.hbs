@@ -1,207 +1,69 @@
-## Changelog (1.27.10)
+[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/473).
+[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.29.3).
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.9).
+Just a few community PRs and miscellany. As usual, Reloaded-II is on life support while I spend
+the next years building the next best thing - if you want features, please contribute!
 
-This update improves Reloaded's Launcher for people using screen readers, labelling many
-previously unlabaled items throughout the core UI.
+# 1.29.5: Add missing `ModConfig.json` to include files
 
-Most of the core/main UI should now be a bit friendlier 😇.
-It's not going to be perfect, but I hope it's just a little better.
+There was a small regression in `1.29.3`, where the default includes did not
+include `ModConfig.json`, that's now been fixed.
 
-## Changelog (1.27.9)
+In addition I added a missing 'include files' label before the second table.
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.8).
+# 1.29.4: Misc Linux Installer Improvements
 
-This update re-enables WPF Automation Functionality to improve accessibility for users who require
-the use of assistive screen readers.
+Small improvements to install on Linux:
 
-Originally this was disabled in an effort to improve performance, a significant amount of time is spent
-initializing the automation system on every launch. However, I did not expect at the time that said Functionality
-would have an impact on accessibility. I originally assumed that the functionality was only used for debugging purposes.
+- [Ensure 'Applications' directory exists so creating shortcut doesn't fail during install on some systems.](https://github.com/Reloaded-Project/Reloaded-II/issues/717)
+- Create `Software\Wine` key in registry if doesn't exist. May fix odd cases where people's 'show dot files' settings don't enable by default. 
 
-For that, I am sorry.
+And also:
+- Updated 🇫🇷 French Localization by @dysfunctionalriot
 
-## Changelog (1.27.8)
+# 1.29.3: More Miscellaneous Improvements
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.7).
+## Allow .NET 9 Versions >= 9.0.8 for loader.
 
-- Fixed a launcher crash that would occur when trying to set the Mod Preview to an image that's already in the Mod Root Folder.
-    - For example setting `Reloaded-II/Mods/your.mod.id/Preview.png` as the image, when `Preview.png` was already in the correct location.
-    - Originally reported here: https://github.com/Reloaded-Project/Reloaded-II/issues/389
+No update to .NET 10 as of current; but am allowing 9.0.8 or greater for loader now.
 
-## Changelog (1.27.7)
+According to 3rd party reports I got thus far, `Proton` needs updating to receive some upstream fixes from `Wine` for .NET 10, which may take a while to reach downstream.
+We wait for Proton 11, I suppose.
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.6).
+## Added Progress Bar for Mod Installation
 
-- Added a Safeguard against people putting files in `Program Files/dotnet/shared` that don't belong to the .NET runtime.
-    - Originally reported here: https://github.com/Reloaded-Project/Reloaded-II/issues/373
-    - It's unknown why the files were there, it may be `tModLoader`, but I'm not personally sure.
+![Image](https://github.com/user-attachments/assets/9f09ccad-f036-4856-806c-3c75f281307a)
 
-## Changelog (1.27.6)
+If a mod takes longer than 3 seconds to install via Drag & Drop, a simple progress bar will display on the screen now.
+In practice you should only see this if you install large mods (think >500MB); on a typical CPU.
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.5).
+## Save Mod Config on Publish, Including `IncludeFiles` and `ExcludeFiles` by @TheBestAstroNOT , @Sewer56
 
-- Reduced time taken to download many small mod updates.
-- Improved fault handling for mod updates.
+When you `Publish` a mod you have an option to exclude certain files from the released project via `File Inclusions & Exclusions`.
+By default, that is all `.json` files except `.deps.json` and `.runtimeconfig.json` ones.
 
-This was done by adding an exponential backoff retry policy for mod updates. In addition, we now update 4 mods in parallel,
-instead of just 1.
+Previously, changes on this menu didn't save; as barely anyone ever changed the defaults.
+Now they do.
 
-## Changelog (1.27.5)
+## Reorder ASI Loader DLL Detection Order by @dreamsyntax
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.4).
+The order of which DLL name gets selected for Ultimate ASI Loader was changed.
+Now matches using order defined in our code, rather than the order in `PE Header`.
 
-Fixed by @AnimatedSwine37.
+With that in mind, items were rearranged to be as least intrusive as possible.
+For instance, ASI Loader as `dinput8.dll` has caused issues in the past in limited scenarios; e.g. when using C# library with SharpDX to read inputs via dinput.
 
-Fixed a bug where saving after clicking `Load Existing Pack` would cause the `ReleaseMetadataFileName`
-property of every loaded mod to be lost on save, making the pack unusable.
+## Disabled CET
 
-## Changelog (1.27.4)
+[.NET 9 added a security feature (on by default)](https://learn.microsoft.com/en-us/dotnet/core/compatibility/interop/9.0/cet-support) which is incompatible with older unsupported versions of Windows.
+Namely Windows 10 22H2 and older.
 
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/369).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.3).
+Given that Reloaded-II is already unsafe by design (injects arbitrary code), and it's usually not used for multiplayer, there is no good reason for CET to be enforced.
+Rather, it should be the game's responsibility to opt in. Generally, if possible, if the base game runs on the PC, the modded game should too, out of the box.
 
-Originally reported as:
-- https://github.com/Reloaded-Project/Reloaded-II/issues/368
+## Misc
 
-When changing the install location of a GamePass (Microsoft Store) game within Reloaded-II, the operation will no longer fail if the file is protected/unreadable due to OS' built in Copy Protection/Sandboxing.
-
-This is useful if:
-
-- You have reinstalled the game.
-- You have moved the game to another location.
-
-etc.
-
-Instead, the same logic/steps as will be applied as if the game was added for the first time, including ASI Loader re-deployment (if necessary).
-
-## Changelog (1.27.3)
-
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/365).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.2).
-
-This update adds fallback logic that will display error messages if any should occur before the UI is fully initialized.
-
-## Changelog (1.27.2)
-
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/357).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.1).
-
-This update removes the dependency on PowerShell when decrypting MS Store games.
-Just in case a user has a borked PowerShell setup.
-
-## Changelog (1.27.1)
-
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/350).
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.27.0).
-
-This update fixes a rare race condition resulting in
-mod files sometimes being missing after a mod update or download.
-
-(Thanks to @AnimatedSwine37)
-
-## Changelog (1.27.0)
-
-[Read and Discuss in a Browser](https://github.com/Reloaded-Project/Reloaded-II/discussions/347).  
-[Previous Changelog](https://github.com/Reloaded-Project/Reloaded-II/releases/tag/1.26.2).  
-
-This is a longer 'Progress Report' kind of post. Consider reading in a browser.
-
-## Dependency Resolution Update
-
-This update is focused on more reliable resolution of missing dependencies, notably, reducing the amount of time that the following message is seen:
-
-![311567942-ab36118e-8a0b-40f3-a0d5-db3490a247f3](https://github.com/Reloaded-Project/Reloaded-II/assets/6697380/c75aa428-d579-46f1-b18f-c7fc3505b364)
-
-**A fix for end users:**
-- Launching Reloaded without Internet after a mod download will no longer render missing dependencies undownloadable.
-    - We now ensure we don't remove unused dependency metadata if we're missing dependencies.
-- Fixed a very rare edge where it was technically possible the launcher incorrectly reports a missing dependency.
-    - This would happen if a mod had multiple download locations (e.g. GameBanana+GitHub), but was removed from 1 location.
-
-**A fix for mod authors:**
-- A launcher restart is no longer required to update mod dependency info.
-    - This info is what's used to download missing dependencies.
-    - *You can now safely add/edit a mod in launcher, set dependency, add some files and publish*.
-    - Previously a launcher restart was required to ensure dependency info was embedded in your mod.
-    - We now update the dependency data before publish, ensuring mod authors don't pack mod with missing dependencies.
-    
-**An Automated Error Handler for Edge Cases:**
-- We now use the [Search Index](https://github.com/Reloaded-Project/Reloaded-II.Index) as a fallback, if all else fails.
-    - The search index is what normally makes your mod searches in App super fast.
-    - But it also knows the unique `ModId` of each uploaded mod.
-    - So we can use this to find missing mods.
-    - This currently works for 11 games that use Reloaded-II on GameBanana (I don't index any other sites currently).
-    - Enabling this has some security implications. This is only used as a last resort fallback, when all else fails.
-
-This should hopefully help in getting cases where users experience missing dependencies closer to 0.
-***Especially*** in situations where a dependency is hosted only in 1 location, e.g. `Only <This Mod Site>`
-
-## Updated Docs
-
-Documentation and in-launcher tutorial has been updated to feature installing via drag-and-drop as a method of installation.
-
-![image](https://github.com/Reloaded-Project/Reloaded-II/assets/6697380/d2834ba8-9a6b-43d0-aff8-f067007358c8)
-
-(Hint: It's animated in the launcher)
-
-## Infrastructure Update
-
-The open [1st party package server](http://packages.sewer56.moe:5000/about) is an unsung hero ensuring your modding experience is as smooth as possible. This is the place where ***critical*** code mods are fetched from automatically when the primary source (like GitHub) hits its limits - a common scenario given GitHub's restrictions of 60 requests per hour per IP. 
-
-Given Reloaded's modular nature, you'll typically hit that limit restarting the launcher around 4 times. Now imagine you have a family, or are in a hotel room, or just troubleshooting, this limit may already be exhausted. Now you download a new mod, which requires some framework/critical component and suddenly you're told...
-
-![311567942-ab36118e-8a0b-40f3-a0d5-db3490a247f3](https://github.com/Reloaded-Project/Reloaded-II/assets/6697380/c75aa428-d579-46f1-b18f-c7fc3505b364)
-
-Not ideal.
-
-With the surge of users, traffic on this server has risen drastically. In the past 20 days we have ***transferred 6TB of data***. Month started with approximately 5MB/s and is now 7.5MB/s. This is especially surprising, as the critical code mods stored here are typically under 0.5MB in size. 
-
-![pulse-browser_Qw41LjD9KC](https://github.com/Reloaded-Project/Reloaded-II/assets/6697380/f118f2fe-4eed-4ce4-9422-9660681bdaa0)
-
-![pulse-browser_7lQjhXQXIB](https://github.com/Reloaded-Project/Reloaded-II/assets/6697380/1102d5fe-e625-4175-a2c0-b1dc1b9c2129)
-
-I only found out a few days ago, as I was looking into why the server was unresponsive. Sometimes queries randomly took ~2-3 seconds to respond, and I was rather flabbergasted.
-
-The Package server runs on a *very minimal-effort* fork of [BaGet](https://github.com/loic-sharma/BaGet/), renamed as [BaGet-Reloaded](https://github.com/Sewer56/BaGet-ReloadedII) to avoid confusion with the original project. Using the Sqlite3 backend.
-
-To the best of my knowledge, the delays in responses were caused by a combination of:
-- A lot of writes to the DB, which blocks reads in Sqlite out of the box.
-  - Notably, BaGet increments the 'download count' every time a package is returned via search.
-- Sustained load on a shared CPU (a.k.a. 'vCPU'). [to a very, very small extent]
-
-I changed the settings on Sqlite3 to use [WAL](https://www.sqlite.org/wal.html) and `synchronous=NORMAL`. This allows us to perform reads during writes, thus fixing up the performance. In addition, I bumped the server specs a bit, just in case the load continues to climb. Currently the server is completely responsive again.
-
-### A Thank You
-
-Services like the `Package Server` are supported by your donations.
-They also help cover occasional game purchases.
-Recent Example: [Fixing Compatibility with Special K in presence of Steam Copy Protection/DRM](https://github.com/Reloaded-Project/Reloaded-II/issues/308#issuecomment-1973715264) for games like Granblue Relink
-
-In the ~4 years I've been accepting donations so far, I've received a total of ***£358.87 (and 4 games)***. This has helped cover most of the costs involved. e.g. Package Server, Server Backups, Discord Bot(s), Search Index, Services for some Online Mods, Domain (Website Name) Costs etc. 
-
-With these donations I can almost break even. I don't have any concrete numbers (hard to calculate), but based on some quick maths, I've probably spent around £450-500 on Reloaded related things so far.
-
-Thank you.
-
-### About the Future
-
-Please remember. For most of its life, Reloaded has been a solo project.
-Not just the Manager, but the Loader and many of the core components used across your popular mods.
-
-In any case, the work on the successor continues, albeit slowly.
-
-Every week, I spend around 24-30 hours on Reloaded things, ***on top of my fulltime job***. Hopefully in 2 years, we'll live in a future where users can start experimenting with porting core components from Reloaded-II to Reloaded3. This is not easy to do, but I will relentlessly keep going, until it is done.
-
-The intent of the recent reliability/bug-fix patches is to allow me to step back from maintaining Reloaded-II for a longer time and let me focus on the successor.
-
-If you are a programmer, I should hopefully have a ['Specification'](https://reloaded-project.github.io/Reloaded-III/) ready not too long from now. The work on this is resuming today, after a long hiatus, so various core parts of Reloaded3 will be open to community contributions. Until then, hang tight.
+- Update Dependencies (@dreamsyntax)
 
 ------------------------------------
 
@@ -245,3 +107,16 @@ If you are a programmer, I should hopefully have a ['Specification'](https://rel
 {{#unless options.hideCredit}}
   Reloaded changelogs are generated by [`auto-changelog`](https://github.com/CookPete/auto-changelog) 😇.
 {{/unless}}
+
+====
+
+## Available Downloads
+
+(Below this text, on GitHub)
+
+`Setup.exe`: This is a 1 click installer for Windows.
+`Setup-Linux.exe`: This is a version of `Setup.exe` for easier use in WINE / Proton. Use [Linux Setup Guide](https://reloaded-project.github.io/Reloaded-II/LinuxSetupGuideNew/).
+`Release.zip`: For people who prefer to install manually without an installer.
+`Tools.zip`: Tools for mod authors and developers.
+
+Other files are related to updates, you can ignore them.
